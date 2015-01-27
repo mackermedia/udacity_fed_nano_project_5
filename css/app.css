@@ -13,5 +13,18 @@ body { height: 100%; margin: 0; padding: 0 }
 }
 
 #map-canvas {
-  height: 500px;
+  height: 100%;
+}
+
+.upper-container {
+  height: 75%;
+}
+
+.location-list {
+  height: 100%;
+  overflow: scroll;
+}
+
+.selected {
+  border: 1px solid red;
 }
