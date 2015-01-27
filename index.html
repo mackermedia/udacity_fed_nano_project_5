@@ -17,8 +17,9 @@
         <div class="col-md-10" id="map-canvas">
         </div>
         <div class="col-md-2 location-list">
+          <input data-bind="value: searchKeyword, valueUpdate: 'afterkeydown', event: { keyup: searchFilter }" placeholder="Filter results"></input>
           <p>Location List</p>
-          <ul data-bind="foreach: locations">
+          <ul data-bind="foreach: filteredLocations">
             <li data-bind="attr: { id: $data.id }, css: { selected: currentLocation === $data }">
               <p>Title: <span data-bind="text: title"></span></p>
               <p>Address: <span data-bind="text: address"></span></p>

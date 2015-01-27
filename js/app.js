@@ -116,8 +116,8 @@ var Location = function(data, owner) {
 
     this.createMarker = function() {
         var marker = new google.maps.Marker({
-            position: new google.maps.LatLng(ko.unwrap(this.latitude), ko.unwrap(this.longitude)),
-            title: ko.unwrap(this.title),
+            position: new google.maps.LatLng(this.latitude(), this.longitude()),
+            title: this.title(),
             map: owner.map
         });
 
@@ -128,7 +128,7 @@ var Location = function(data, owner) {
         return marker;
     }
 
-    var marker = this.createMarker();
+    this.marker = this.createMarker();
 }
 
 /* ======= ViewModel ======= */
@@ -140,11 +140,13 @@ var ViewModel = function() {
     var self = this;
 
     this.locations = ko.observableArray([]);
+    this.filteredLocations = ko.observableArray([]);
     this.currentLocation = ko.observable(null);
+    this.searchKeyword = ko.observable('');
 
     this.locationSelected = function(location) {
         this.currentLocation(location);
-        document.getElementById(ko.unwrap(location.id)).scrollIntoView();
+        document.getElementById(location.id()).scrollIntoView();
     }
 
     this.initialize = function() {
@@ -154,9 +156,41 @@ var ViewModel = function() {
             mapTypeId: google.maps.MapTypeId.ROADMAP
         })
 
+        // init all locations list
         allLocations.forEach(function(locationItem) {
             self.locations.push(new Location(locationItem, this));
         });
+
+        // init filtered locations list
+        self.locations().forEach(function (location) {
+            self.filteredLocations.push(location);
+        })
+    }
+
+    this.searchFilter = function() {
+        self.resetMap();
+
+        // determine matches
+        var matches = self.locations().filter(function (location) {
+            return location.title().toLowerCase().indexOf(self.searchKeyword()) !== -1;
+        });
+
+        // if they match, insert them back into the filtered list
+        self.filteredLocations(matches);
+
+        self.updateMap();
+    }
+
+    this.resetMap = function() {
+        self.locations().forEach(function (location) {
+            location.marker.setMap(null);
+        })
+    }
+
+    this.updateMap = function() {
+        self.filteredLocations().forEach(function (location) {
+            location.marker.setMap(self.map);
+        })
     }
 
     initialize();
