@@ -1,6 +1,27 @@
 html { height: 100% }
 body { height: 100%; margin: 0; padding: 0 }
 
+.float-left {
+  float: left;
+}
+
+.block {
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+.no-padding {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.ws-normal {
+  white-space: normal;
+}
+
 .container {
   height: 100%;
   padding: 0;
@@ -17,7 +38,13 @@ body { height: 100%; margin: 0; padding: 0 }
 }
 
 .upper-container {
-  height: 75%;
+  height: 60%;
+}
+
+.lower-container {
+  border-top: black solid 1px;
+  height: 40%;
+  padding-top: 5px;
 }
 
 .location-list {
@@ -25,6 +52,41 @@ body { height: 100%; margin: 0; padding: 0 }
   overflow: scroll;
 }
 
-.selected {
-  border: 1px solid red;
+.loading-animation {
+  background-image: url('../images/circle-loading-animation.gif');
+}
+
+.horizontal-list {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.horizontal-list li {
+  display: inline-block;
+  float: none;
+  padding-right: 15px;
+  width: 225px;
+  min-width: 225px;
+}
+
+ul.horizontal-slide li:first-child {
+  margin-left: 0;
+}
+
+.list-item-image {
+  height: 50px;
+  width: 50px;
+}
+
+.horizontal-list-item .thumbnail {
+  height: 350px;
+  min-height: 350px;
+  overflow: auto;
+}
+
+.location-list input {
+  margin-bottom: 20px;
 }
