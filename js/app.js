@@ -8,98 +8,99 @@ var allLocations = [
         title: "Avery Brewing Company",
         address: "5763 Arapahoe Avenue, Boulder, CO 80303",
         lat: 40.0144,
-        lng: -105.219
+        lng: -105.219,
+        breweryDbId: "Jio9R0",
+        image: "https://s3.amazonaws.com/brewerydbapi/brewery/Jio9R0/upload_ygs0YS-icon.png"
     },
     {
         id: 2,
         title: "Twisted Pine Brewing Co",
         address: "3201 Walnut Street, Boulder, CO 80301",
         lat: 40.0201,
-        lng: -105.251
+        lng: -105.251,
+        breweryDbId: "aaN9Np",
+        image: "https://s3.amazonaws.com/brewerydbapi/brewery/aaN9Np/upload_fhLuhp-icon.png"
     },
     {
         id: 3,
         title: "Boulder Beer",
         address: "2880 Wilderness Place, Boulder, CO 80301",
         lat: 40.0261,
-        lng: -105.248
+        lng: -105.248,
+        breweryDbId: "stdQLg",
+        image: "https://s3.amazonaws.com/brewerydbapi/brewery/stdQLg/upload_k5veTg-icon.png"
     },
     {
         id: 4,
         title: "Upslope Brewing Company",
         address: "1898 South Flatiron Court Boulder, CO 80301",
         lat: 40.0203,
-        lng: -105.218
+        lng: -105.218,
+        breweryDbId: "VjnZAd",
+        image: "https://s3.amazonaws.com/brewerydbapi/brewery/VjnZAd/upload_akMbwc-icon.png"
     },
     {
         id: 5,
         title: "FATE Brewing Company",
         address: "1600 38th Street, Boulder, CO 80301",
         lat: 40.0145,
-        lng: -105.245
+        lng: -105.245,
+        breweryDbId: "mEhLzL",
+        image: "https://s3.amazonaws.com/brewerydbapi/brewery/mEhLzL/upload_9ANdl1-icon.png"
     },
     {
         id: 6,
         title: "J Wells Brewery",
         address: "2516 49th Street #5, Boulder, CO 80301",
         lat: 40.0245,
-        lng: -105.239
+        lng: -105.239,
+        breweryDbId: "XPKDbB",
+        image: "https://s3.amazonaws.com/brewerydbapi/brewery/XPKDbB/upload_gV1bYr-icon.png"
     },
     {
         id: 7,
         title: "Wild Woods Brewery",
         address: "5460 Conestoga Court, Boulder, CO 80301",
         lat: 40.0166,
-        lng: -105.227
+        lng: -105.227,
+        breweryDbId: "a2yFCt",
+        image: "https://s3.amazonaws.com/brewerydbapi/brewery/a2yFCt/upload_N449Jl-icon.png"
     },
     {
         id: 8,
         title: "Mountain Sun Pub & Brewery",
         address: "1535 Pearl Street, Boulder, CO 80302",
         lat: 40.0188,
-        lng: -105.275
+        lng: -105.275,
+        breweryDbId: "fQwjb1",
+        image: "https://s3.amazonaws.com/brewerydbapi/brewery/fQwjb1/upload_RMU4U6-icon.png"
     },
     {
         id: 9,
         title: "Walnut Brewery",
         address: "1123 Walnut Street, Boulder, CO 80302",
         lat: 40.0167,
-        lng: -105.281
+        lng: -105.281,
+        breweryDbId: "ATZH3J",
+        image: "https://s3.amazonaws.com/brewerydbapi/brewery/ATZH3J/upload_IKtakH-icon.png"
     },
     {
         id: 10,
         title: "Sanitas Brewing Co",
         address: "3550 Frontier Avenue, Boulder, CO 80301",
         lat: 40.0231,
-        lng: -105.247
+        lng: -105.247,
+        breweryDbId: "e7pl4v",
+        image: "https://s3.amazonaws.com/brewerydbapi/brewery/e7pl4v/upload_DurIdP-icon.png"
     },
     {
         id: 11,
         title: "BRU handbuilt ales & eats",
         address: "5290 Arapahoe Avenue, Boulder, CO 80303",
         lat: 40.0145,
-        lng: -105.228
-    },
-    {
-        id: 12,
-        title: "Boulder Distillery & Clear Spirit Company",
-        address: "2500 47th Street Unit 10, Boulder, CO 80301",
-        lat: 40.0264,
-        lng: -105.244
-    },
-    {
-        id: 13,
-        title: "Roundhouse Spirits Distillery",
-        address: "5311 Western Avenue #180, Boulder, CO 80301",
-        lat: 40.0174,
-        lng: -105.229
-    },
-    {
-        id: 14,
-        title: "J&L Distilling Company",
-        address: "4843 Pearl Street #1, Boulder, CO 80301",
-        lat: 40.0254,
-        lng: -105.240
+        lng: -105.228,
+        breweryDbId: "1lFW5q",
+        image: "https://s3.amazonaws.com/brewerydbapi/brewery/1lFW5q/upload_qcycin-icon.png"
     }
 ]
 
@@ -113,6 +114,10 @@ var Location = function(data, owner) {
     this.address = ko.observable(data.address);
     this.latitude = ko.observable(data.lat);
     this.longitude = ko.observable(data.lng);
+    this.image = ko.observable(data.image);
+    this.dataLoaded = ko.observable(false);
+    this.breweryDbId = data.breweryDbId;
+    this.owner = owner;
 
     this.createMarker = function() {
         var marker = new google.maps.Marker({
@@ -129,12 +134,71 @@ var Location = function(data, owner) {
     }
 
     this.marker = this.createMarker();
+
+    this.contentString = "<p>" + this.title() + "</p>";
+
+    this.createInfoWindow = function() {
+        var infoWindow = new google.maps.InfoWindow({
+            content: self.contentString
+        });
+
+        return infoWindow;
+    }
+
+    this.openInfoWindow = function() {
+        self.infoWindow.open(owner.map, self.marker);
+    }
+
+    this.closeInfoWindow = function() {
+        self.infoWindow.close();
+    }
+
+    this.infoWindow = this.createInfoWindow();
+
+    this.beers = ko.observableArray([]);
+
+    this.loadBeerData = function() {
+        $.ajax({ url: "http://mackermedia.com/brewery_db_proxy/?brewery_id=" + self.breweryDbId,
+            success: function(data) {
+                self.setBeers(data.data);
+                self.dataLoaded(true);
+                self.owner.triggerCarousel();
+            },
+            error: function(msg) {
+                // TODO show an error message
+                console.log(msg);
+                alert('oh no');
+            }});
+    }
+
+    this.setBeers = function(data) {
+        data.forEach(function (beerData) {
+            if (beerData.availabilityId !== undefined && beerData.availabilityId === 3) {
+                return; // 3 is 'Not Available'
+            }
+
+            self.beers.push(new Beer(beerData))
+        });
+    }
+}
+
+var Beer = function(data) {
+    this.name = ko.observable(data.name);
+    this.abv = ko.observable(data.abv);
+    if (data.labels !== undefined) {
+        this.icon = ko.observable(data.labels.medium);
+    } else {
+        this.icon = ko.observable("images/na.png");
+    }
+    if (data.style !== undefined) {
+        this.style = ko.observable(data.style.name);
+    } else {
+        this.style = ko.observable("N/A");
+    }
 }
 
 /* ======= ViewModel ======= */
 
-// 1.3 make viewModel update map markers? -- map marker clicks? -- map marker infowindows closing on selection
-// 1.4 make listview click update css property to show selected
 
 var ViewModel = function() {
     var self = this;
@@ -145,15 +209,23 @@ var ViewModel = function() {
     this.searchKeyword = ko.observable('');
 
     this.locationSelected = function(location) {
-        this.currentLocation(location);
-        document.getElementById(location.id()).scrollIntoView();
+        self.currentLocation(location);
+        $("#" + location.id()).scrollintoview();
+        closeAllInfoWindows();
+        location.openInfoWindow();
+        if (location.dataLoaded() !== true) {
+            location.loadBeerData();
+        }
     }
 
     this.initialize = function() {
         this.map = new google.maps.Map(document.getElementById('map-canvas'), {
             center: new google.maps.LatLng(40.025, -105.27),
+            draggable: false,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            panControl: false,
+            scrollwheel: false,
             zoom: 13,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
         })
 
         // init all locations list
@@ -190,67 +262,18 @@ var ViewModel = function() {
     this.updateMap = function() {
         self.filteredLocations().forEach(function (location) {
             location.marker.setMap(self.map);
+            location.closeInfoWindow();
+        })
+    }
+
+    this.closeAllInfoWindows = function() {
+        self.filteredLocations().forEach(function (location) {
+            location.closeInfoWindow();
         })
     }
 
     initialize();
 }
-
-
-// var mapView = {
-
-//     markers: [],
-//     infoWindows: [],
-
-//     init: function(aMap) {
-//         var mapOptions = {
-//           center: { lat: 40.025, lng: -105.27},
-//           zoom: 14
-//         };
-
-//         // store the map for later and attach it to the DOM
-//         this.map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-
-//         this.render();
-//     },
-
-//     render: function() {
-//         // populate markers
-//         var locations = ViewModel.getLocations();
-
-//         for (var i = 0; i < locations.length; i++) {
-//             this.markers[i] = new google.maps.Marker({
-//                 position: new google.maps.LatLng(locations[i].lat, locations[i].lng),
-//                 map: this.map,
-//                 title: locations[i].title
-//             });
-
-//             this.infoWindows[i] = new google.maps.InfoWindow({
-//                 content: "<div>" + locations[i].title + "</div>"
-//             });
-
-//             google.maps.event.addListener(this.markers[i], 'click', this.markerClickCallback(i, this));
-//         }
-//     },
-
-//     markerClickCallback: function(index, that) {
-//         return function() {
-//             that.infoWindows[index].open(that.map, that.markers[index]);
-//         };
-//     },
-
-//     closeOpenInfoWindows: function() {
-//         for (var i = 0; i < this.infoWindows.length; i++) {
-//             this.infoWindows[i].close();
-//         }
-//     },
-
-//     openInfoWindow: function(index) {
-//         this.closeOpenInfoWindows();
-//         this.infoWindows[index].open(this.map, this.markers[index]);
-//     }
-// }
-
 
 // make it go!
 ko.applyBindings(ViewModel);

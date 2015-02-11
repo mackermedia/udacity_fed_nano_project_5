@@ -9,6 +9,8 @@
     <link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css"></link>
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"></link>
     <link rel="stylesheet" type="text/css" href="css/app.css"></link>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script type="text/javascript" src="js/scrollintoview.js"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6ZY56wYF9XDgT01ysZaIgYLBDhF7-Qf0"></script>
   </head>
   <body>
@@ -17,21 +19,43 @@
         <div class="col-md-10" id="map-canvas">
         </div>
         <div class="col-md-2 location-list">
-          <input data-bind="value: searchKeyword, valueUpdate: 'afterkeydown', event: { keyup: searchFilter }" placeholder="Filter results"></input>
-          <p>Location List</p>
-          <ul data-bind="foreach: filteredLocations">
-            <li data-bind="attr: { id: $data.id }, css: { selected: currentLocation === $data }">
-              <p>Title: <span data-bind="text: title"></span></p>
-              <p>Address: <span data-bind="text: address"></span></p>
+          <div class="col-md-12 text-center">
+            <legend>Breweries of Boulder, CO</legend>
+          </div>
+          <input class="form-control" data-bind="value: searchKeyword, valueUpdate: 'afterkeydown', event: { keyup: searchFilter }" placeholder="Filter results"></input>
+          <ul class="list-group" data-bind="foreach: filteredLocations">
+            <li class="list-group-item" data-bind="attr: { id: $data.id }, css: { active: currentLocation() === $data }, click: locationSelected">
+              <div class="row">
+                <div class="col-md-2 no-padding">
+                  <img class="img-responsive list-item-image" data-bind="attr: { src: image }" />
+                </div>
+                <div class="col-md-10">
+                  <h4 class="list-group-item-heading"><span data-bind="text: title"></span></h4>
+                  <p class="list-group-item-text"><span data-bind="text: address"></span></p>
+                </div>
+              </div>
             </li>
           </ul>
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-12 text-center">
-          This is the extra info
-          <div data-bind="if: currentLocation">
-            <div data-bind="text: currentLocation().title"></div>
+      <div class="lower-container" data-bind="if: currentLocation">
+        <div class="row">
+          <div data-bind="css: { hidden: currentLocation().dataLoaded() }">
+            <img class="img-responsive center-block" width="100" src="images/circle-loading-animation.gif" />
+          </div>
+          <div class="col-md-12">
+            <ul class="horizontal-list" data-bind="foreach: currentLocation().beers()">
+              <li class="col-md-2 horizontal-list-item">
+                <div class="thumbnail">
+                  <img class="img-responsive" data-bind="attr: { src: icon }" />
+                  <div class="caption">
+                    <h3 class="list-group-item-heading ws-normal"><span data-bind="text: name"></span></h3>
+                    <p class="list-group-item-text ws-normal"><span data-bind="text: style"></span></p>
+                    <p class="list-group-item-text">ABV: <span data-bind="text: abv"></span>%</p>
+                  </div>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
