@@ -90,3 +90,13 @@ ul.horizontal-slide li:first-child {
 .location-list input {
   margin-bottom: 20px;
 }
+
+@media only screen and (max-width: 991px) {
+  #map-canvas {
+    height: 50%;
+  }
+
+  .location-list {
+    height: 50%;
+  }
+}
