@@ -276,6 +276,7 @@ var ViewModel = function() {
 
         // close open info windows and open the only current one
         closeAllInfoWindows();
+        location.marker.setIcon("images/beer_marker.png");
         location.openInfoWindow();
 
         // load beer data
@@ -368,6 +369,7 @@ var ViewModel = function() {
     this.closeAllInfoWindows = function() {
         self.filteredLocations().forEach(function (location) {
             location.closeInfoWindow();
+            location.marker.setIcon(null);
         })
     }
 
