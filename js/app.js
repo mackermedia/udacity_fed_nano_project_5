@@ -138,19 +138,21 @@ var Location = function(data, owner) {
      * @return {object} This returns the marker at lat/lng, with title and click handler.
      */
     this.createMarker = function() {
-        // create the Google Maps marker at the correct location with title
-        var marker = new google.maps.Marker({
-            position: new google.maps.LatLng(this.latitude(), this.longitude()),
-            title: this.title(),
-            map: owner.map
-        });
+        if (typeof google !== 'undefined' && google.maps.Map) {
+            // create the Google Maps marker at the correct location with title
+            var marker = new google.maps.Marker({
+                position: new google.maps.LatLng(this.latitude(), this.longitude()),
+                title: this.title(),
+                map: owner.map
+            });
 
-        // set the click handler -- which sets ViewModel.locationSelected(self)
-        google.maps.event.addListener(marker, 'click', function() {
-            owner.locationSelected(self);
-        });
+            // set the click handler -- which sets ViewModel.locationSelected(self)
+            google.maps.event.addListener(marker, 'click', function() {
+                owner.locationSelected(self);
+            });
 
-        return marker;
+            return marker;
+        }
     }
     this.marker = this.createMarker();
 
@@ -161,11 +163,13 @@ var Location = function(data, owner) {
     this.createInfoWindow = function() {
         // create the info window and set the content.
         // had to initialize the string outside of this function ¯\_(ツ)_/¯
-        var infoWindow = new google.maps.InfoWindow({
-            content: self.contentString
-        });
+        if (typeof google !== 'undefined' && google.maps.Map) {
+            var infoWindow = new google.maps.InfoWindow({
+                content: self.contentString
+            });
 
-        return infoWindow;
+            return infoWindow;
+        }
     }
     this.infoWindow = this.createInfoWindow();
 
@@ -173,14 +177,18 @@ var Location = function(data, owner) {
      * This function opens the location's info window
      */
     this.openInfoWindow = function() {
-        self.infoWindow.open(owner.map, self.marker);
+        if (typeof google !== 'undefined' && google.maps.Map) {
+            self.infoWindow.open(owner.map, self.marker);
+        }
     }
 
     /**
      * This function closes the location's info window
      */
     this.closeInfoWindow = function() {
-        self.infoWindow.close();
+        if (typeof google !== 'undefined' && google.maps.Map) {
+            self.infoWindow.close();
+        }
     }
 
     /**
@@ -282,20 +290,28 @@ var ViewModel = function() {
      */
     this.initialize = function() {
         // init the google map
-        self.map = new google.maps.Map(document.getElementById('map-canvas'), {
-            center: new google.maps.LatLng(40.025, -105.27),
-            draggable: false,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            panControl: false,
-            scrollwheel: false,
-            zoom: 13,
-        })
+        if (typeof google !== 'undefined' && google.maps.Map) {
+            self.map = new google.maps.Map(document.getElementById('map-canvas'), {
+                center: new google.maps.LatLng(40.025, -105.27),
+                draggable: false,
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+                panControl: false,
+                scrollwheel: false,
+                zoom: 13,
+            })
+        } else {
+            var mapCanvas = $("#map-canvas");
+            mapCanvas.html("Google Maps Library failed to load. You need to either be online or not blocking this script.");
+            mapCanvas.addClass("text-center");
+        }
 
         // listen for the window resize event & trigger Google Maps to update too
         $(window).resize(function() {
-            var center = map.getCenter();
-            google.maps.event.trigger(this.map, "resize");
-            self.map.setCenter(center);
+            if (typeof google !== 'undefined' && google.maps.Map) {
+                var center = map.getCenter();
+                google.maps.event.trigger(this.map, "resize");
+                self.map.setCenter(center);
+            }
         });
 
         // init all locations list
